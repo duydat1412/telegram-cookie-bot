@@ -1,9 +1,30 @@
 import os
 import json
+import threading
 from datetime import datetime
+from flask import Flask
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+# ========== FLASK ==========
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+@app.route('/health')
+def health():
+    return "OK", 200
+
+def run_flask():
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
+
+# Chạy Flask TRƯỚC trong thread riêng
+threading.Thread(target=run_flask, daemon=True).start()
+
+# ========== BOT CODE ==========
 stored_cookies = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
